@@ -16,9 +16,44 @@ namespace F26Week9CodeFirstApproach
     /// </summary>
     public partial class MainWindow : Window
     {
+        SchoolContext db = new SchoolContext();
+
         public MainWindow()
         {
             InitializeComponent();
+            LoadStandardsInCombobox();
+        }
+
+        private void LoadStudents()
+        {
+            grdStudents.ItemsSource = db.Students
+                                        .Select(s => new {s.StudentId, s.StudentName, s.Standard.StandardName})
+                                        .ToList();
+        }
+
+        private void LoadStandardsInCombobox()
+        {
+            cmbStandard.ItemsSource = db.Standards.ToList();
+            cmbStandard.DisplayMemberPath = "StandardName";
+            cmbStandard.SelectedValuePath = "StandardId";
+        }
+
+        private void btnLoadStudents_Click(object sender, RoutedEventArgs e)
+        {
+            LoadStudents();
+        }
+
+        private void btnInsert_Click(object sender, RoutedEventArgs e)
+        {
+            Student std = new Student();
+            std.StudentName = txtName.Text;
+            std.StandardId = (int)cmbStandard.SelectedValue;
+
+            db.Students.Add(std);
+            db.SaveChanges();
+
+            LoadStudents();
+            MessageBox.Show("New student added");
         }
     }
 }
